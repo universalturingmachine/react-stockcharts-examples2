@@ -144,12 +144,12 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 					/>
 				</Chart>
 				<Chart id={5}
-					yExtents={[0, 100]}
+					yExtents={[-100, 100]}
 					height={125} origin={(w, h) => [0, h - 375]} padding={{ top: 10, bottom: 10 }}
 				>
 					<XAxis axisAt="bottom" orient="bottom" {...xGrid} />
 					<YAxis axisAt="right" orient="right"
-						tickValues={[20, 50, 80]} />
+						tickValues={[-40, 0, 40]} />
 
 					<MouseCoordinateX
 						at="bottom"
