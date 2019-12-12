@@ -2,7 +2,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Chart from './Chart';
-import { tsvParse } from  "d3-dsv";
+import { csvParse } from  "d3-dsv";
 import { timeParse } from "d3-time-format";
 
 import { TypeChooser } from "react-stockcharts/lib/helper";
@@ -20,8 +20,13 @@ class ChartComponent extends React.Component {
 	};
 	
 	setData = data => {
-		let parseDate  = timeParse("%Y-%m-%d");
-		let parsedData = tsvParse(data, parseData(parseDate));
+		let parseDate  = timeParse("%Y-%m-%d %H:%M:%S");
+		let parsedData = csvParse(data, parseData(parseDate));
+		
+		parsedData.sort((a, b) => {
+			return a.date.valueOf() - b.date.valueOf();
+		});
+		
 		this.setState({parsedData});
 	};
 	

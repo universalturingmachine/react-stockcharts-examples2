@@ -62,7 +62,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 			.accessor(d => d.ema50);
 
 		const fullSTO = smiOscillator()
-			.options({ windowSize: 14, kWindowSize: 3, dWindowSize: 14 })
+			.options({ emaWindowSize: 3, kWindowSize: 14, dWindowSize: 14 })
 			.merge((d, c) => {d.fullSTO = c;})
 			.accessor(d => d.fullSTO);
 
@@ -123,7 +123,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 					<StraightLine type="vertical" xValue={558} strokeDasharray="Dot" />;
 					<StraightLine type="vertical" xValue={578} strokeDasharray="LongDash" />;
 
-					<OHLCTooltip origin={[-40, -10]}/>
+					<OHLCTooltip origin={[-40, -10]} xDisplayFormat={timeFormat("%Y-%m-%d %H:%M:%S")}/>
 					<MovingAverageTooltip
 						onClick={e => console.log(e)}
 						origin={[-38, 5]}
@@ -154,7 +154,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 					<MouseCoordinateX
 						at="bottom"
 						orient="bottom"
-						displayFormat={timeFormat("%Y-%m-%d")} />
+						displayFormat={timeFormat("%Y-%m-%d %H:%M:%S")} />
 					<MouseCoordinateY
 						at="right"
 						orient="right"
