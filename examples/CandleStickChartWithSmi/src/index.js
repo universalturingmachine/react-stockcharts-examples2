@@ -9,12 +9,6 @@ import { TypeChooser } from "react-stockcharts/lib/helper";
 import ReadFileComponent from "./ReadFileComponent";
 
 class ChartComponent extends React.Component {
-	// componentDidMount() {
-	// 	getData().then(data => {
-	// 		this.setState({ data })
-	// 	})
-	// }
-	
 	state = {
 		parsedData : ""
 	};
@@ -36,9 +30,10 @@ class ChartComponent extends React.Component {
 		}
 		else {
 			return (
-				<TypeChooser>
-					{type => <Chart type={type} data={this.state.parsedData}/>}
-				</TypeChooser>
+				// <TypeChooser>
+				// 	{type => <Chart type={type} data={this.state.parsedData}/>}
+				// </TypeChooser>
+				<Chart data={this.state.parsedData} />
 			)
 		}
 	}

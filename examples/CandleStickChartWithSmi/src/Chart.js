@@ -11,6 +11,8 @@ import {
 	CandlestickSeries,
 	LineSeries,
 	SmiSeries,
+	StochasticSeries,
+	ChoppinessSeries
 } from "react-stockcharts/lib/series";
 import { XAxis, YAxis } from "react-stockcharts/lib/axes";
 import {
@@ -26,14 +28,25 @@ import {
 	OHLCTooltip,
 	MovingAverageTooltip,
 	StochasticTooltip,
+	SingleValueTooltip
 } from "react-stockcharts/lib/tooltip";
-import { ema, smiOscillator } from "react-stockcharts/lib/indicator";
+import { ema, smiOscillator, stochasticOscillator, choppinessOscillator } from "react-stockcharts/lib/indicator";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
 
 const smiAppearance = {
 	stroke: Object.assign({},
 		SmiSeries.defaultProps.stroke)
+};
+
+const stoAppearance = {
+	stroke: Object.assign({},
+		StochasticSeries.defaultProps.stroke)
+};
+
+const choppinessAppearance = {
+	stroke: Object.assign({},
+		ChoppinessSeries.defaultProps.stroke)
 };
 
 class CandleStickChartWithFullSmiIndicator extends React.Component {
@@ -61,14 +74,24 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 			.merge((d, c) => {d.ema50 = c;})
 			.accessor(d => d.ema50);
 
-		const fullSTO = smiOscillator()
+		const smi = smiOscillator()
 			.options({ emaWindowSize: 3, kWindowSize: 14, dWindowSize: 14 })
+			.merge((d, c) => {d.smi = c;})
+			.accessor(d => d.smi);
+		
+		const fullSTO = stochasticOscillator()
+			.options({ windowSize: 3, kWindowSize: 14, dWindowSize: 3 })
 			.merge((d, c) => {d.fullSTO = c;})
 			.accessor(d => d.fullSTO);
+		
+		const choppiness = choppinessOscillator()
+			.options({ windowSize: 14 })
+			.merge((d, c) => {d.choppiness = c;})
+			.accessor(d => d.choppiness);
 
 		const index = 100;
 		console.log(JSON.stringify(initialData[index]));
-		const calculatedData = ema20(ema50(fullSTO(initialData)));
+		const calculatedData = ema20(ema50(smi(fullSTO(choppiness(initialData)))));
 		console.log(JSON.stringify(calculatedData[index]));
 
 		const xScaleProvider = discontinuousTimeScaleProvider
@@ -143,14 +166,72 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						]}
 					/>
 				</Chart>
-				<Chart id={5}
+				<Chart id={2}
 					yExtents={[-100, 100]}
 					height={125} origin={(w, h) => [0, h - 375]} padding={{ top: 10, bottom: 10 }}
 				>
-					<XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+					{/*<XAxis axisAt="bottom" orient="bottom" {...xGrid} />*/}
+					<XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} />
 					<YAxis axisAt="right" orient="right"
 						tickValues={[-40, 0, 40]} />
 
+					{/*<MouseCoordinateX*/}
+					{/*	at="bottom"*/}
+					{/*	orient="bottom"*/}
+					{/*	displayFormat={() => ""}*/}
+					{/*/>*/}
+					<MouseCoordinateY
+						at="right"
+						orient="right"
+						displayFormat={format(".2f")} />
+					<SmiSeries
+						yAccessor={d => d.smi}
+						{...smiAppearance} />
+
+					<StochasticTooltip
+						origin={[-38, 15]}
+						yAccessor={d => d.smi}
+						options={smi.options()}
+						appearance={smiAppearance}
+						label="SMI" />
+				</Chart>
+				<Chart id={3}
+				       yExtents={[0, 100]}
+				       height={125} origin={(w, h) => [0, h - 250]} padding={{ top: 10, bottom: 10 }}
+				>
+					<XAxis axisAt="bottom" orient="bottom" showTicks={false} {...xGrid} />
+					<YAxis axisAt="right" orient="right"
+					       tickValues={[20, 50, 80]} />
+					
+					{/*<MouseCoordinateX*/}
+					{/*	at="bottom"*/}
+					{/*	orient="bottom"*/}
+					{/*	displayFormat={() => ""}*/}
+					{/*	// displayFormat={timeFormat("%Y-%m-%d %H:%M:%S")}*/}
+					{/*/>*/}
+					<MouseCoordinateY
+						at="right"
+						orient="right"
+						displayFormat={format(".2f")} />
+					<StochasticSeries
+						yAccessor={d => d.fullSTO}
+						{...stoAppearance} />
+					
+					<StochasticTooltip
+						origin={[-38, 15]}
+						yAccessor={d => d.fullSTO}
+						options={fullSTO.options()}
+						appearance={stoAppearance}
+						label="Full STO" />
+				</Chart>
+				<Chart id={4}
+				       yExtents={[0, 100]}
+				       height={125} origin={(w, h) => [0, h - 125]} padding={{ top: 10, bottom: 10 }}
+				>
+					<XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+					<YAxis axisAt="right" orient="right"
+					       tickValues={[20, 50, 80]} />
+					
 					<MouseCoordinateX
 						at="bottom"
 						orient="bottom"
@@ -159,17 +240,18 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						at="right"
 						orient="right"
 						displayFormat={format(".2f")} />
-					<SmiSeries
-						yAccessor={d => d.fullSTO}
-						{...smiAppearance} />
-
-					<StochasticTooltip
+					<ChoppinessSeries
+						yAccessor={d => d.choppiness}
+						{...choppinessAppearance} />
+					
+					<SingleValueTooltip
 						origin={[-38, 15]}
-						yAccessor={d => d.fullSTO}
-						options={fullSTO.options()}
-						appearance={smiAppearance}
-						label="Full STO" />
+						yAccessor={d => d.choppiness}
+						options={choppiness.options()}
+						appearance={choppinessAppearance}
+						label="Choppiness" />
 				</Chart>
+				
 				<CrossHairCursor />
 			</ChartCanvas>
 		);
@@ -183,7 +265,7 @@ CandleStickChartWithFullSmiIndicator.propTypes = {
 };
 
 CandleStickChartWithFullSmiIndicator.defaultProps = {
-	type: "svg",
+	type: "hybrid",
 };
 
 CandleStickChartWithFullSmiIndicator = fitWidth(CandleStickChartWithFullSmiIndicator);
