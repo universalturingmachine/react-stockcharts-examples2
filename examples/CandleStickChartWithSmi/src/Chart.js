@@ -30,7 +30,7 @@ import {
 	StochasticTooltip,
 	SingleValueTooltip
 } from "react-stockcharts/lib/tooltip";
-import { ema, smiOscillator, stochasticOscillator, choppinessOscillator } from "react-stockcharts/lib/indicator";
+import { sma, smiOscillator, stochasticOscillator, choppinessOscillator } from "react-stockcharts/lib/indicator";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
 
@@ -62,17 +62,17 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 		const yGrid = showGrid ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.1 } : {};
 		const xGrid = showGrid ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.1 } : {};
 
-		const ema20 = ema()
+		const sma20 = sma()
 			.id(0)
 			.options({ windowSize: 20 })
-			.merge((d, c) => {d.ema20 = c;})
-			.accessor(d => d.ema20);
+			.merge((d, c) => {d.sma20 = c;})
+			.accessor(d => d.sma20);
 
-		const ema50 = ema()
+		const sma50 = sma()
 			.id(2)
 			.options({ windowSize: 50 })
-			.merge((d, c) => {d.ema50 = c;})
-			.accessor(d => d.ema50);
+			.merge((d, c) => {d.sma50 = c;})
+			.accessor(d => d.sma50);
 
 		const smi = smiOscillator()
 			.options({ emaWindowSize: 3, kWindowSize: 14, dWindowSize: 14 })
@@ -91,7 +91,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 
 		const index = 100;
 		console.log(JSON.stringify(initialData[index]));
-		const calculatedData = ema20(ema50(smi(fullSTO(choppiness(initialData)))));
+		const calculatedData = sma20(sma50(smi(fullSTO(choppiness(initialData)))));
 		console.log(JSON.stringify(calculatedData[index]));
 
 		const xScaleProvider = discontinuousTimeScaleProvider
@@ -121,7 +121,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 			>
 				<Chart id={1} height={325}
 					yExtents={d => [d.high, d.low]}
-					padding={{ top: 10, bottom: 20 }}
+					// padding={{ top: 10, bottom: 20 }}
 				>
 					<YAxis axisAt="right" orient="right" ticks={5} {...yGrid}/>
 					<XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} />
@@ -133,11 +133,11 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 
 					<CandlestickSeries />
 
-					<LineSeries yAccessor={ema20.accessor()} stroke={ema20.stroke()}/>
-					<LineSeries yAccessor={ema50.accessor()} stroke={ema50.stroke()}/>
+					<LineSeries yAccessor={sma20.accessor()} stroke={sma20.stroke()}/>
+					<LineSeries yAccessor={sma50.accessor()} stroke={sma50.stroke()}/>
 
-					<CurrentCoordinate yAccessor={ema20.accessor()} fill={ema20.stroke()} />
-					<CurrentCoordinate yAccessor={ema50.accessor()} fill={ema50.stroke()} />
+					<CurrentCoordinate yAccessor={sma20.accessor()} fill={sma20.stroke()} />
+					<CurrentCoordinate yAccessor={sma50.accessor()} fill={sma50.stroke()} />
 
 					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
 						yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
@@ -152,23 +152,24 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						origin={[-38, 5]}
 						options={[
 							{
-								yAccessor: ema20.accessor(),
-								type: ema20.type(),
-								stroke: ema20.stroke(),
-								windowSize: ema20.options().windowSize,
+								yAccessor: sma20.accessor(),
+								type: sma20.type(),
+								stroke: sma20.stroke(),
+								windowSize: sma20.options().windowSize,
 							},
 							{
-								yAccessor: ema50.accessor(),
-								type: ema50.type(),
-								stroke: ema50.stroke(),
-								windowSize: ema50.options().windowSize,
+								yAccessor: sma50.accessor(),
+								type: sma50.type(),
+								stroke: sma50.stroke(),
+								windowSize: sma50.options().windowSize,
 							},
 						]}
 					/>
 				</Chart>
 				<Chart id={2}
-					yExtents={[-100, 100]}
-					height={125} origin={(w, h) => [0, h - 375]} padding={{ top: 10, bottom: 10 }}
+					yExtents={[-90, 90]}
+					height={125} origin={(w, h) => [0, h - 375]}
+					// padding={{ top: 10, bottom: 10 }}
 				>
 					{/*<XAxis axisAt="bottom" orient="bottom" {...xGrid} />*/}
 					<XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} />
@@ -196,8 +197,9 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						label="SMI" />
 				</Chart>
 				<Chart id={3}
-				       yExtents={[0, 100]}
-				       height={125} origin={(w, h) => [0, h - 250]} padding={{ top: 10, bottom: 10 }}
+				       yExtents={[5, 95]}
+				       height={125} origin={(w, h) => [0, h - 250]}
+				       // padding={{ top: 10, bottom: 10 }}
 				>
 					<XAxis axisAt="bottom" orient="bottom" showTicks={false} {...xGrid} />
 					<YAxis axisAt="right" orient="right"
@@ -225,12 +227,13 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						label="Full STO" />
 				</Chart>
 				<Chart id={4}
-				       yExtents={[0, 100]}
-				       height={125} origin={(w, h) => [0, h - 125]} padding={{ top: 10, bottom: 10 }}
+				       yExtents={[20, 80]}
+				       height={125} origin={(w, h) => [0, h - 125]}
+				       // padding={{ top: 10, bottom: 10 }}
 				>
 					<XAxis axisAt="bottom" orient="bottom" {...xGrid} />
 					<YAxis axisAt="right" orient="right"
-					       tickValues={[20, 50, 80]} />
+					       tickValues={[38.2, 50, 61.8]} />
 					
 					<MouseCoordinateX
 						at="bottom"
@@ -249,7 +252,7 @@ class CandleStickChartWithFullSmiIndicator extends React.Component {
 						yAccessor={d => d.choppiness}
 						options={choppiness.options()}
 						appearance={choppinessAppearance}
-						label="Choppiness" />
+						yLabel="Choppiness" />
 				</Chart>
 				
 				<CrossHairCursor />
