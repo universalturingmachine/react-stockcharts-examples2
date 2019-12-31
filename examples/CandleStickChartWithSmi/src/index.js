@@ -5,8 +5,9 @@ import Chart from './Chart';
 import { csvParse } from  "d3-dsv";
 import { timeParse } from "d3-time-format";
 
-import { TypeChooser } from "react-stockcharts/lib/helper";
-import ReadFileComponent from "./ReadFileComponent";
+// import { TypeChooser } from "react-stockcharts/lib/helper";
+// import ReadFileComponent from "./ReadFileComponent";
+import ReadFromDbComponent from "./ReadFromDbComponent";
 
 class ChartComponent extends React.Component {
 	state = {
@@ -26,7 +27,7 @@ class ChartComponent extends React.Component {
 	
 	render() {
 		if (this.state.parsedData === "") {
-			return <ReadFileComponent setData = {this.setData} />;
+			return <ReadFromDbComponent setData = {this.setData} />;
 		}
 		else {
 			return (
