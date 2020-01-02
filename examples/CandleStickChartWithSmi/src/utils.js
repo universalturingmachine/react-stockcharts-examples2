@@ -1,30 +1,27 @@
-
-
-import { csvParse } from  "d3-dsv";
 import { timeParse } from "d3-time-format";
 
-function parseData(parse) {
-	return function(d) {
-		d.date = parse(d.timestamp);
+const parseDate = timeParse("%Y-%m-%dT%H:%M:%S");
+
+function transformElement(element) {
+	let outputElement = {
+		open  : element.open,
+		high  : element.high,
+		low   : element.low,
+		close : element.close,
 		
-		d.open = +d.open;
-		d.high = +d.high;
-		d.low = +d.low;
-		d.close = +d.close;
-		d.volume = +d.volume;
-		
-		d.trading_symbol = d.tradingSymbol;
-		
-		return d;
+		volume : element.volume,
+		date : parseDate(element.timestamp),
+		trading_symbol : element.tradingSymbol
 	};
+	return outputElement;
 }
 
-const parseDate = timeParse("%Y-%m-%d");
-
 export default function getData(tradingSymbol) {
-	const url = "http://localhost:8080/vr-backend-0.0.1-SNAPSHOT/stockdata/" + tradingSymbol;
+	const url = "http://localhost:8080/vr-backend-0.0.1-SNAPSHOT/stockdata/" + tradingSymbol + "?from=2019-12-03&to=2019-12-03";
+	
 	const data = fetch(url)
-		.then(response => response.text())
-		.then(data => csvParse(data, parseData(parseDate)));
+		.then(response => response.json())
+		.then(data => data.map(transformElement));
+	
 	return data;
 }

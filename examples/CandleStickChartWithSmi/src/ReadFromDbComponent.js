@@ -18,9 +18,7 @@ class ReadFromDbComponent extends React.Component {
 	
 	handleSubmit(event) {
 		event.preventDefault();
-		let data = getData(this.state.tradingSymbol);
-		console.log(JSON.stringify(data));
-		this.props.setData(data);
+		getData(this.state.tradingSymbol).then(data => this.props.setData(data));
 	}
 	
 	render() {
